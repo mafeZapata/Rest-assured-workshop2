@@ -1,4 +1,4 @@
-package workshop;
+package workshop.hintsTest;
 import org.testng.annotations.BeforeClass;
 import io.restassured.RestAssured;
 import static org.hamcrest.Matchers.*;

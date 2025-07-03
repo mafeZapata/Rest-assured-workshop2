@@ -1,4 +1,4 @@
-package workshop;
+package workshop.hintsTest;
 
 import io.restassured.response.Response;
 import org.json.simple.JSONObject;
