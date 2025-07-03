@@ -5,9 +5,15 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      testClass:
+        description: 'workshop.CommentsTest, workshop.DeleteSkillsTest, workshop.GetSkillsTest,  workshop.SingInTest, workshop.StudentSkillsTest, workshop.StudentsTest, workshop.UtilitiesTest'
+        required: false
+        default: ''
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +30,14 @@ jobs:
         run: mvn -B package
         working-directory: restAssured2
 
-      - name: Run tests (configured by surefire plugin)
-        run: mvn test
+      - name: Run all tests or one specific class
+        run: |
+          if [ -z "${{ github.event.inputs.testClass }}" ]; then
+            echo "🔎 Ejecutando TODOS los tests del paquete workshop/"
+            mvn test
+          else
+            echo "🔎 Ejecutando test específico: ${{ github.event.inputs.testClass }}"
+            mvn -Dtest=${{ github.event.inputs.testClass }} test
+          fi
         working-directory: restAssured2
+
