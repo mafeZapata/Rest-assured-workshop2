@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       testClass:
-        description: 'workshop.CommentsTest, workshop.DeleteSkillsTest, workshop.GetSkillsTest,  workshop.SingInTest, workshop.StudentSkillsTest, workshop.StudentsTest, workshop.UtilitiesTest'
+        description: 'Clase de test a ejecutar (ej: CommentsTest)'
         required: false
         default: ''
 
@@ -36,8 +36,10 @@ jobs:
             echo "🔎 Ejecutando TODOS los tests del paquete workshop/"
             mvn test
           else
-            echo "🔎 Ejecutando test específico: ${{ github.event.inputs.testClass }}"
-            mvn -Dtest=${{ github.event.inputs.testClass }} test
+            CLASS_NAME=$(basename "${{ github.event.inputs.testClass }}")
+            echo "🔎 Ejecutando test específico: $CLASS_NAME"
+            mvn -Dtest=$CLASS_NAME test
           fi
         working-directory: restAssured2
+
 
