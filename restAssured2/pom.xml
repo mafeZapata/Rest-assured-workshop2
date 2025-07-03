@@ -152,7 +152,7 @@
                     <configuration>
                         <!--Ruta de las clases de prueba-->
                         <includes>
-                            <include>com/restassured/exercise/**.java</include>
+                            <include>**/*Test.java</include>
                         </includes>
                         <argLine>
                             -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
