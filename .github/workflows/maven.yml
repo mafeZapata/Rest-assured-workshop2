@@ -26,8 +26,15 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build with Maven
-        run: mvn -B package
+      - name: Set environment variables
+        run: |
+            echo "ACADEMY_API_PATH=https://parseapi.back4app.com" >> $GITHUB_ENV
+            echo "API_APPLICATION_ID=33VkH3xL6TfxON93Sduy9mPmK1grwO2f98dT3Ami" >> $GITHUB_ENV
+            echo "API_TOKEN=BzTMNFv954AlAjdiOQzyJnP5aexiorut8cVqf5Ha" >> $GITHUB_ENV
+
+
+      - name: Build without tests
+        run: mvn -B package -DskipTests
         working-directory: restAssured2
 
       - name: Run all tests or one specific class
@@ -41,5 +48,3 @@ jobs:
             mvn -Dtest=$CLASS_NAME test
           fi
         working-directory: restAssured2
-
-
