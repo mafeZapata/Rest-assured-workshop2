@@ -28,9 +28,10 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "ACADEMY_API_PATH = https://parseapi.back4app.com" >> $GITHUB_ENV
-          echo "API_APPLICATION_ID = 33VkH3xL6TfxON93Sduy9mPmK1grwO2f98dT3Ami" >> $GITHUB_ENV
-          echo "API_TOKEN = BzTMNFv954AlAjdiOQzyJnP5aexiorut8cVqf5Ha" >> $GITHUB_ENV
+            echo "ACADEMY_API_PATH=https://parseapi.back4app.com" >> $GITHUB_ENV
+            echo "API_APPLICATION_ID=33VkH3xL6TfxON93Sduy9mPmK1grwO2f98dT3Ami" >> $GITHUB_ENV
+            echo "API_TOKEN=BzTMNFv954AlAjdiOQzyJnP5aexiorut8cVqf5Ha" >> $GITHUB_ENV
+
 
       - name: Build without tests
         run: mvn -B package -DskipTests
