@@ -18,7 +18,7 @@ public class StudentSkillsTest extends UtilitiesTest{
 
     @BeforeTest
     public void SetEnvironmentAndAuthenticate() {
-
+        setEnvironmentParameters();
         sessionToken = Login();
     }
     @Test

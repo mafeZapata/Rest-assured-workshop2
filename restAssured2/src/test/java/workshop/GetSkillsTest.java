@@ -9,7 +9,8 @@ import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
 public class GetSkillsTest extends UtilitiesTest {
-
+    String appId;
+    String apiToken;
 
     @BeforeTest
     public void SetEnvironmentParameters(){
