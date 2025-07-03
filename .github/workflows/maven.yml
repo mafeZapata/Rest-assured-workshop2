@@ -1,0 +1,45 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      testClass:
+        description: 'Clase de test a ejecutar (ej: CommentsTest)'
+        required: false
+        default: ''
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v3
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn -B package
+        working-directory: restAssured2
+
+      - name: Run all tests or one specific class
+        run: |
+          if [ -z "${{ github.event.inputs.testClass }}" ]; then
+            echo "🔎 Ejecutando TODOS los tests del paquete workshop/"
+            mvn test
+          else
+            CLASS_NAME=$(basename "${{ github.event.inputs.testClass }}")
+            echo "🔎 Ejecutando test específico: $CLASS_NAME"
+            mvn -Dtest=$CLASS_NAME test
+          fi
+        working-directory: restAssured2
+
+
