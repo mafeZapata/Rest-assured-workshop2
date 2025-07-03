@@ -16,7 +16,7 @@ public class UtilitiesTest {
     protected String baseUri;
     protected String sessionToken;
 
-    @BeforeSuite
+
     public void setEnvironmentParameters() {
         String Uri = System.getenv("ACADEMY_API_PATH");
         appId = System.getenv("API_APPLICATION_ID");
