@@ -18,6 +18,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: test  
 
     steps:
       - uses: actions/checkout@v3
@@ -29,16 +30,17 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Set environment variables
+      - name: Mostrar variables de entorno del environment
         run: |
-          echo "ACADEMY_API_PATH : $ACADEMY_API_PATH" 
-          echo "API_APPLICATION_ID : $API_APPLICATION_ID " 
-          echo "API_TOKEN : $ API_TOKEN" 
+          echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
+          echo "API_APPLICATION_ID: $API_APPLICATION_ID"
+          echo "API_TOKEN: $API_TOKEN"
+        
         env:
-          ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
-          API_APPLICATION_ID: ${{ vars.API_APPLICATION_ID }}
-          API_TOKEN: ${{ vars. API_TOKEN }}
-
+          ACADEMY_API_PATH: ${{ secrets.ACADEMY_API_PATH }}
+          API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}   
+        
       - name: Build without tests
         run: mvn -B package -DskipTests
         working-directory: restAssured2
