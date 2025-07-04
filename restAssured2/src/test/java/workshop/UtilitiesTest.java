@@ -4,11 +4,13 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.testng.annotations.BeforeSuite;
 import io.restassured.http.ContentType;
+import org.testng.annotations.BeforeTest;
+
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 import java.util.Random;
 
-public class UtilitiesTest {
+public class  UtilitiesTest  {
 
     //clase para hacer login y crear usuarios
     protected String appId;
@@ -22,6 +24,13 @@ public class UtilitiesTest {
         appId = System.getenv("API_APPLICATION_ID");
         apiToken = System.getenv("API_TOKEN");
         RestAssured.baseURI = Uri;
+    }
+
+    @BeforeTest
+    public void SetEnvironmentAndAuthenticate() {
+
+        setEnvironmentParameters();
+        sessionToken = Login();
     }
 
     public String Login() {

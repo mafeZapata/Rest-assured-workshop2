@@ -8,12 +8,9 @@ import io.restassured.*;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
-public class GetSkillsTest extends UtilitiesTest {
+public class GetSkillsTest extends UtilitiesNonAuthTest {
 
-    @BeforeTest
-    public void SetEnvironmentParameters(){
-        setEnvironmentParameters();
-    }
+
     @Test
     public void testGetSkills() {
 

@@ -15,13 +15,6 @@ import static org.hamcrest.Matchers.*;
 
 public class CommentsTest extends UtilitiesTest{
 
-    @BeforeTest
-    public void SetEnvironmentAndAuthenticate() {
-
-        setEnvironmentParameters();
-        sessionToken = Login();
-    }
-
     @Test
     public void testAddCommentToStudentAndVerifyInList() {
 
