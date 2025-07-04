@@ -18,7 +18,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-    environment: test  
+    environment: test  # 👈 Asegura acceso a vars/secrets del environment 'test'
 
     steps:
       - uses: actions/checkout@v3
@@ -30,19 +30,23 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: sietem environments
+      - name: Set environment variables
         run: |
           echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
           echo "API_APPLICATION_ID: $API_APPLICATION_ID"
           echo "API_TOKEN: $API_TOKEN"
         env:
           ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
-          API_APPLICATION_ID: ${{ vars.API_APPLICATION_ID }}
+          API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
           API_TOKEN: ${{ secrets.API_TOKEN }}
-        
+
       - name: Build without tests
         run: mvn -B package -DskipTests
         working-directory: restAssured2
+        env:
+          ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
+          API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
 
       - name: Run all tests or one specific class
         run: |
@@ -55,3 +59,7 @@ jobs:
             mvn -Dtest=$CLASS_NAME test
           fi
         working-directory: restAssured2
+        env:
+          ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
+          API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
