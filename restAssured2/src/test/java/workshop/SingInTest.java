@@ -10,12 +10,8 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-public class SingInTest extends UtilitiesTest {
+public class SingInTest extends UtilitiesNonAuthTest {
 
-    @BeforeTest
-    public void SetEnvironmentAndAuthenticate() {
-        setEnvironmentParameters();
-    }
     @Test
     public void VerifySignIn() {
         JSONObject requestBody = new JSONObject();

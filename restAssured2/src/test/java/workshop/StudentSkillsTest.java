@@ -16,11 +16,7 @@ import static org.hamcrest.Matchers.*;
 
 public class StudentSkillsTest extends UtilitiesTest{
 
-    @BeforeTest
-    public void SetEnvironmentAndAuthenticate() {
 
-        sessionToken = Login();
-    }
     @Test
     public void testAddSkillToStudentAndVerify() {
         String baseName = "Louis";

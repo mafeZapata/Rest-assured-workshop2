@@ -8,12 +8,7 @@ import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class DeleteSkillsTest extends UtilitiesTest {
-
-    @BeforeTest
-    public void SetEnvironmentParameters(){
-        setEnvironmentParameters();
-    }
+public class DeleteSkillsTest extends UtilitiesNonAuthTest {
 
     @Test
     public void testDeleteSkill() {
