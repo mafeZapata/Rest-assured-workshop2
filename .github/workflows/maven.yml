@@ -12,9 +12,15 @@ on:
         required: false
         default: ''
 
+env:
+  env_var: ${{ vars.ENV_CONTEXT_VAR }}
+
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Java Tests
+    if: ${{ vars.USE_VARIABLES == 'true' }}
+    runs-on: ${{ vars.RUNNER }}
+    environment: ${{ vars.ENVIRONMENT_STAGE }}
 
     steps:
       - uses: actions/checkout@v3
@@ -28,10 +34,26 @@ jobs:
 
       - name: Set environment variables
         run: |
-            echo "ACADEMY_API_PATH=https://parseapi.back4app.com" >> $GITHUB_ENV
-            echo "API_APPLICATION_ID=33VkH3xL6TfxON93Sduy9mPmK1grwO2f98dT3Ami" >> $GITHUB_ENV
-            echo "API_TOKEN=BzTMNFv954AlAjdiOQzyJnP5aexiorut8cVqf5Ha" >> $GITHUB_ENV
+          echo "ACADEMY_API_PATH=https://parseapi.back4app.com" >> $GITHUB_ENV
+          echo "API_APPLICATION_ID=33VkH3xL6TfxON93Sduy9mPmK1grwO2f98dT3Ami" >> $GITHUB_ENV
+          echo "API_TOKEN=BzTMNFv954AlAjdiOQzyJnP5aexiorut8cVqf5Ha" >> $GITHUB_ENV
 
+      - name: Use configuration variables
+        run: |
+          echo "repository variable : $REPOSITORY_VAR"
+          echo "organization variable : $ORGANIZATION_VAR"
+          echo "overridden variable : $OVERRIDE_VAR"
+          echo "variable from shell environment : $env_var"
+        env:
+          REPOSITORY_VAR: ${{ vars.REPOSITORY_VAR }}
+          ORGANIZATION_VAR: ${{ vars.ORGANIZATION_VAR }}
+          OVERRIDE_VAR: ${{ vars.OVERRIDE_VAR }}
+
+      - name: ${{ vars.HELLO_WORLD_STEP }}
+        if: ${{ vars.HELLO_WORLD_ENABLED == 'true' }}
+        uses: actions/hello-world-javascript-action@main
+        with:
+          who-to-greet: ${{ vars.GREET_NAME }}
 
       - name: Build without tests
         run: mvn -B package -DskipTests
