@@ -15,6 +15,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: test
+
+    env:
+      ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
+      API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
+      API_TOKEN: ${{ secrets.API_TOKEN }}
+      env_var: ${{ vars.ENV_CONTEXT_VAR }}
 
     steps:
       - uses: actions/checkout@v3
@@ -26,12 +33,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Set environment variables
+      - name: Mostrar variables de entorno
         run: |
-            echo "ACADEMY_API_PATH=https://parseapi.back4app.com" >> $GITHUB_ENV
-            echo "API_APPLICATION_ID=33VkH3xL6TfxON93Sduy9mPmK1grwO2f98dT3Ami" >> $GITHUB_ENV
-            echo "API_TOKEN=BzTMNFv954AlAjdiOQzyJnP5aexiorut8cVqf5Ha" >> $GITHUB_ENV
-
+          echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
+          echo "API_APPLICATION_ID: $API_APPLICATION_ID"
+          echo "API_TOKEN: $API_TOKEN"
+          echo "ENV_CONTEXT_VAR: $env_var"
 
       - name: Build without tests
         run: mvn -B package -DskipTests
@@ -39,6 +46,10 @@ jobs:
 
       - name: Run all tests or one specific class
         run: |
+          export ACADEMY_API_PATH=$ACADEMY_API_PATH
+          export API_APPLICATION_ID=$API_APPLICATION_ID
+          export API_TOKEN=$API_TOKEN
+
           if [ -z "${{ github.event.inputs.testClass }}" ]; then
             echo "🔎 Ejecutando TODOS los tests del paquete workshop/"
             mvn test
