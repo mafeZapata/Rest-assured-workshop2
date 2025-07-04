@@ -12,13 +12,16 @@ on:
         required: false
         default: ''
 
-env:
-  env_var: ${{ vars.ENV_CONTEXT_VAR }}
-
 jobs:
   test:
     runs-on: ubuntu-latest
-    environment: test  # 👈 Asegura acceso a vars/secrets del environment 'test'
+    environment: test
+
+    env:
+      ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
+      API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
+      API_TOKEN: ${{ secrets.API_TOKEN }}
+      env_var: ${{ vars.ENV_CONTEXT_VAR }}
 
     steps:
       - uses: actions/checkout@v3
@@ -30,23 +33,16 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Set environment variables
+      - name: Mostrar variables
         run: |
           echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
           echo "API_APPLICATION_ID: $API_APPLICATION_ID"
           echo "API_TOKEN: $API_TOKEN"
-        env:
-          ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
-          API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
-          API_TOKEN: ${{ secrets.API_TOKEN }}
+          echo "ENV_CONTEXT_VAR: $env_var"
 
       - name: Build without tests
         run: mvn -B package -DskipTests
         working-directory: restAssured2
-        env:
-          ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
-          API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
-          API_TOKEN: ${{ secrets.API_TOKEN }}
 
       - name: Run all tests or one specific class
         run: |
@@ -59,7 +55,3 @@ jobs:
             mvn -Dtest=$CLASS_NAME test
           fi
         working-directory: restAssured2
-        env:
-          ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
-          API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
-          API_TOKEN: ${{ secrets.API_TOKEN }}
