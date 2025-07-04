@@ -30,16 +30,15 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Mostrar variables de entorno del environment
+      - name: sietem environments
         run: |
           echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
           echo "API_APPLICATION_ID: $API_APPLICATION_ID"
           echo "API_TOKEN: $API_TOKEN"
-        
         env:
-          ACADEMY_API_PATH: ${{ secrets.ACADEMY_API_PATH }}
-          API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
-          API_TOKEN: ${{ secrets.API_TOKEN }}   
+          ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
+          API_APPLICATION_ID: ${{ vars.API_APPLICATION_ID }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
         
       - name: Build without tests
         run: mvn -B package -DskipTests
