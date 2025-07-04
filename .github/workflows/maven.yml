@@ -46,7 +46,6 @@ jobs:
 
       - name: Run all tests or one specific class
         run: |
-          # Exportar variables para que estén disponibles en el entorno de Java
           export ACADEMY_API_PATH=$ACADEMY_API_PATH
           export API_APPLICATION_ID=$API_APPLICATION_ID
           export API_TOKEN=$API_TOKEN
