@@ -46,16 +46,17 @@ jobs:
 
       - name: Run all tests or one specific class
         run: |
-          export ACADEMY_API_PATH=$ACADEMY_API_PATH
-          export API_APPLICATION_ID=$API_APPLICATION_ID
-          export API_TOKEN=$API_TOKEN
-
           if [ -z "${{ github.event.inputs.testClass }}" ]; then
             echo "🔎 Ejecutando TODOS los tests del paquete workshop/"
-            mvn test
+            mvn test \
+              -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
+              -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
+              -DAPI_TOKEN="$API_TOKEN"
           else
             CLASS_NAME=$(basename "${{ github.event.inputs.testClass }}")
             echo "🔎 Ejecutando test específico: $CLASS_NAME"
-            mvn -Dtest=$CLASS_NAME test
-          fi
+            mvn -Dtest="$CLASS_NAME" test \
+              -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
+              -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
+              -DAPI_TOKEN="$API_TOKEN"
         working-directory: restAssured2
