@@ -15,10 +15,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    environment: test  # 🔒 Se usa el ambiente donde están definidas las secrets y variables
 
     env:
-      ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
+      ACADEMY_API_PATH: ${{ secrets.ACADEMY_API_PATH }}
       API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
       API_TOKEN: ${{ secrets.API_TOKEN }}
 
@@ -32,11 +31,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Mostrar variables de entorno
+      - name: Mostrar variables de entorno (sin exponer secretos)
         run: |
           echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
-          echo "API_APPLICATION_ID: [oculto por seguridad]"
-          echo "API_TOKEN: [oculto por seguridad]"
+          echo "API_APPLICATION_ID: [oculto]"
+          echo "API_TOKEN: [oculto]"
 
       - name: Build without tests
         run: mvn -B package -DskipTests
