@@ -15,6 +15,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: test
 
     env:
       ACADEMY_API_PATH: ${{ secrets.ACADEMY_API_PATH }}
@@ -31,11 +32,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Mostrar variables de entorno (sin exponer secretos)
+      - name: Show environment variables (debug)
         run: |
           echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
-          echo "API_APPLICATION_ID: [oculto]"
-          echo "API_TOKEN: [oculto]"
+          echo "API_APPLICATION_ID: ${API_APPLICATION_ID:0:4}********"
+          echo "API_TOKEN: ${API_TOKEN:0:4}********"
 
       - name: Build without tests
         run: mvn -B package -DskipTests
@@ -44,7 +45,7 @@ jobs:
       - name: Run all tests or one specific class
         run: |
           if [ -z "${{ github.event.inputs.testClass }}" ]; then
-            echo "🔎 Ejecutando TODOS los tests del paquete workshop/"
+            echo "🔎 Ejecutando TODOS los tests"
             mvn test \
               -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
               -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
@@ -52,7 +53,7 @@ jobs:
           else
             CLASS_NAME=$(basename "${{ github.event.inputs.testClass }}")
             echo "🔎 Ejecutando test específico: $CLASS_NAME"
-            mvn -Dtest="$CLASS_NAME" test \
+            mvn -Dtest=$CLASS_NAME test \
               -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
               -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
               -DAPI_TOKEN="$API_TOKEN"
