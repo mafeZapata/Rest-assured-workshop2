@@ -1,10 +1,16 @@
-name: Run All Workshop Tests
+name: Java CI with Maven
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      testClass:
+        description: 'Clase de test a ejecutar (ej: workshop.CommentsTest o dejar vacío para todos)'
+        required: false
+        default: ''
 
 jobs:
   test:
@@ -12,35 +18,48 @@ jobs:
     environment: test
 
     env:
-      ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
+      ACADEMY_API_PATH: ${{ secrets.ACADEMY_API_PATH }}
       API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
       API_TOKEN: ${{ secrets.API_TOKEN }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      - name: Set up JDK 24
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '24'
           distribution: 'temurin'
+          cache: maven
 
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+      - name: Show environment variables (debug)
+        run: |
+          echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
+          echo "API_APPLICATION_ID: ${API_APPLICATION_ID:0:4}********"
+          echo "API_TOKEN: ${API_TOKEN:0:4}********"
 
-      - name: Run tests with Maven
-        run: mvn clean test
-        working-directory: ./restAssured2  # 👈 Asegura que Maven se ejecute donde está el pom.xml
+      - name: Build without tests
+        run: mvn -B package -DskipTests
+        working-directory: restAssured2
 
-      - name: Upload Surefire reports on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: surefire-reports
-          path: restAssured2/target/surefire-reports  # 👈 Ruta corregida también
+      - name: Run all tests or one specific class
+        run: |
+          if [ -z "${{ github.event.inputs.testClass }}" ]; then
+            echo "🔎 Ejecutando TODOS los tests"
+            mvn test \
+              -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
+              -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
+              -DAPI_TOKEN="$API_TOKEN"
+          else
+            # La variable testClass debería contener el nombre completo de la clase, ej: workshop.CommentsTest
+            # Si el usuario ingresa con .java, lo eliminamos (aunque idealmente el input debería ser sin .java)
+            CLASS_NAME="${{ github.event.inputs.testClass }}"
+            CLASS_NAME=${CLASS_NAME%.java} # Elimina la extensión .java si está presente
+
+            echo "🔎 Ejecutando test específico: $CLASS_NAME"
+            mvn -Dtest=$CLASS_NAME test \
+              -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
+              -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
+              -DAPI_TOKEN="$API_TOKEN"
+          fi
+        working-directory: restAssured2
