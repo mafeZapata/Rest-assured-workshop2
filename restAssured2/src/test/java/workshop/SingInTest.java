@@ -3,6 +3,7 @@ package workshop;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.json.simple.JSONObject;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -11,7 +12,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 public class SingInTest extends UtilitiesNonAuthTest {
+    @BeforeSuite
+    public void SetEnvironmentAndAuthenticate() {
 
+        setEnvironmentParameters();
+        sessionToken = Login();
+    }
     @Test
     public void VerifySignIn() {
         JSONObject requestBody = new JSONObject();
