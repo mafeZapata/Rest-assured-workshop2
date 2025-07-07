@@ -3,6 +3,7 @@ package workshop;
 import io.restassured.response.Response;
 import org.json.simple.JSONObject;
 import org.testng.Assert;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import io.restassured.http.ContentType;
@@ -16,9 +17,10 @@ import static org.hamcrest.Matchers.*;
 
 public class StudentSkillsTest extends UtilitiesTest{
 
-    @BeforeTest
+    @BeforeSuite
     public void SetEnvironmentAndAuthenticate() {
 
+        setEnvironmentParameters();
         sessionToken = Login();
     }
     @Test

@@ -1,6 +1,7 @@
 package workshop;
 
 import io.restassured.response.Response;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import io.restassured.*;
@@ -8,13 +9,14 @@ import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class DeleteSkillsTest extends UtilitiesTest {
+public class DeleteSkillsTest extends UtilitiesNonAuthTest {
 
-    @BeforeTest
-    public void SetEnvironmentParameters(){
+    @BeforeSuite
+    public void SetEnvironmentAndAuthenticate() {
+
         setEnvironmentParameters();
+        sessionToken = Login();
     }
-
     @Test
     public void testDeleteSkill() {
         String skillId = "Z3NyhPqOQT";

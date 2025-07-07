@@ -1,6 +1,7 @@
 package workshop;
 
 import io.restassured.response.Response;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import io.restassured.*;
@@ -8,13 +9,14 @@ import io.restassured.*;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
-public class GetSkillsTest extends UtilitiesTest {
+public class GetSkillsTest extends UtilitiesNonAuthTest {
+    @BeforeSuite
+    public void SetEnvironmentAndAuthenticate() {
 
-
-    @BeforeTest
-    public void SetEnvironmentParameters(){
         setEnvironmentParameters();
+        sessionToken = Login();
     }
+
     @Test
     public void testGetSkills() {
 
