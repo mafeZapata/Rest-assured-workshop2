@@ -1,83 +1,55 @@
-name: Java CI with Maven
+name: Run All Workshop Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
-    inputs:
-      testClass:
-        description: 'Clase de test a ejecutar (ej: workshop.CommentsTest o dejar vacío para todos)'
-        required: false
-        default: ''
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    environment: test # Mantén el entorno para asegurar el acceso a los secrets/vars
+    environment: test  # 👈 Esto activa el environment "test" (donde están los secrets)
 
-    # Las variables de entorno ya no se declaran aquí directamente,
-    # sino que se cargarán desde el archivo .env en un paso posterior.
-    # env:
-    #   ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
-    #   API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
-    #   API_TOKEN: ${{ secrets.API_TOKEN }}
+    env:
+      ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
+      API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
+      API_TOKEN: ${{ secrets.API_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      # Paso para crear el archivo .env
-      - name: Create .env file with environment variables
+      - name: Verifica ubicación y pom
         run: |
-          echo "ACADEMY_API_PATH=${{ vars.ACADEMY_API_PATH }}" >> .env
-          echo "API_APPLICATION_ID=${{ secrets.API_APPLICATION_ID }}" >> .env
-          echo "API_TOKEN=${{ secrets.API_TOKEN }}" >> .env
-        # Asegúrate de que este paso se ejecute correctamente.
-        # Las variables se escribirán en el archivo .env
+          echo "Directorio actual:"
+          pwd
+          echo "Contenido raíz:"
+          ls -la
+          echo "Contenido en restAssured2:"
+          ls -la restAssured2
 
-      # Paso para cargar el archivo .env en el entorno del runner
-      - name: Load .env file
-        uses: motdotla/dotenv-action@v0.0.1 # Esta acción cargará las variables del .env en el entorno.
-        with:
-          files: .env # Especifica el archivo a cargar. Por defecto es .env en la raíz.
-
-      - name: Set up JDK 24
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '24'
+          java-version: '17'
           distribution: 'temurin'
-          cache: maven
 
-      - name: Show environment variables (debug) from .env
-        run: |
-          # Ahora accedemos a las variables como variables de entorno estándar de Bash,
-          # ya que la acción dotenv-action las ha cargado.
-          echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
-          echo "API_APPLICATION_ID: ${API_APPLICATION_ID:0:4}********"
-          echo "API_TOKEN: ${API_TOKEN:0:4}********"
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-      - name: Build without tests
-        run: mvn -B package -DskipTests
-        working-directory: restAssured2
+      - name: Run tests with Maven
+        run: mvn clean test
+        working-directory: ./restAssured2  # 👈 Va al directorio correcto con pom.xml
 
-      - name: Run all tests or one specific class
-        run: |
-          if [ -z "${{ github.event.inputs.testClass }}" ]; then
-            echo "🔎 Ejecutando TODOS los tests"
-            # Las variables son accesibles directamente aquí gracias a dotenv-action
-            mvn test \
-              -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
-              -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
-              -DAPI_TOKEN="$API_TOKEN"
-          else
-            CLASS_NAME="${{ github.event.inputs.testClass }}"
-            CLASS_NAME=${CLASS_NAME%.java}
-            echo "🔎 Ejecutando test específico: $CLASS_NAME"
-            # Las variables son accesibles directamente aquí gracias a dotenv-action
-            mvn -Dtest=$CLASS_NAME test \
-              -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
-              -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
-              -DAPI_TOKEN="$API_TOKEN"
-          fi
-        working-directory: restAssured2
+      - name: Upload Surefire reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: restAssured2/target/surefire-reports
