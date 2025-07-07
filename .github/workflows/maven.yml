@@ -1,16 +1,10 @@
-name: Java CI with Maven
+name: Run All Workshop Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
-    inputs:
-      testClass:
-        description: 'Clase de test a ejecutar (ej: CommentsTest)'
-        required: false
-        default: ''
+    branches: [ main ]
 
 jobs:
   test:
@@ -18,36 +12,34 @@ jobs:
     environment: test
 
     env:
-      ACADEMY_API_PATH: ${{ secrets.ACADEMY_API_PATH }}
+      ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
       API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
       API_TOKEN: ${{ secrets.API_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Set up JDK 24
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '24'
+          java-version: '17'
           distribution: 'temurin'
-          cache: maven
 
-      - name: Show environment variables (debug)
-        run: |
-          echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
-          echo "API_APPLICATION_ID: ${API_APPLICATION_ID:0:4}********"
-          echo "API_TOKEN: ${API_TOKEN:0:4}********"
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-      - name: Build without tests
-        run: mvn -B package -DskipTests
-        working-directory: restAssured2
+      - name: Build and run tests
+        run: mvn clean test
 
-      - name: Run all tests or one specific class
-        run: |
-            echo "🔎 Ejecutando TODOS los tests"
-            mvn test \
-              -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
-              -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
-              -DAPI_TOKEN="$API_TOKEN"
-          
-        working-directory: restAssured2
+      - name: Upload Surefire reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: surefire-reports
+          path: target/surefire-reports
