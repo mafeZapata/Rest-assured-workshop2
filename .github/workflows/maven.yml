@@ -36,11 +36,11 @@ jobs:
 
       - name: Build and run tests
         run: mvn clean test
-        working-directory: ./Rest-assured-workshop2
+        working-directory: ./  # ¡Este es el cambio clave!
 
       - name: Upload Surefire reports on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: surefire-reports
-          path: ./Rest-assured-workshop2/target/surefire-reports
+          path: ./target/surefire-reports
