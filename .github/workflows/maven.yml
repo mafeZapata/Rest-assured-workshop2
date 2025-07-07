@@ -1,55 +1,97 @@
-name: Run All Workshop Tests
+Ah, entiendo. Quieres que te ayude a encontrar una alternativa viable a motdotla/dotenv-action@v0.0.1 para que puedas seguir con la estrategia de cargar variables desde un archivo .env en GitHub Actions, a pesar de que la acción original no se encontró.
+
+Dado el error action not found, la acción motdotla/dotenv-action@v0.0.1 o no existe en esa versión, o el repositorio ha sido eliminado.
+
+La alternativa más común y fiable para cargar variables de entorno desde un archivo en GitHub Actions es utilizar una acción diferente o un enfoque de shell simple.
+
+Opción 1: Usar una acción de terceros popular y bien mantenida (Recomendado si quieres .env)
+Una de las acciones más utilizadas para cargar archivos .env es flat-pm/persisted-variables-action. Es bastante flexible y tiene un buen soporte.
+
+Aquí te muestro cómo ajustar tu YAML para usar flat-pm/persisted-variables-action:
+
+YAML
+
+name: Java CI with Maven
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      testClass:
+        description: 'Clase de test a ejecutar (ej: workshop.CommentsTest o dejar vacío para todos)'
+        required: false
+        default: ''
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    environment: test  # 👈 Esto activa el environment "test" (donde están los secrets)
+    environment: test # Mantén el entorno para asegurar el acceso a los secrets/vars
 
-    env:
-      ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
-      API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
-      API_TOKEN: ${{ secrets.API_TOKEN }}
+    # No declaramos las variables aquí para que se carguen desde el .env
+    # env:
+    #   ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
+    #   API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
+    #   API_TOKEN: ${{ secrets.API_TOKEN }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Verifica ubicación y pom
+      # Paso para crear el archivo .env
+      - name: Create .env file with environment variables
         run: |
-          echo "Directorio actual:"
-          pwd
-          echo "Contenido raíz:"
-          ls -la
-          echo "Contenido en restAssured2:"
-          ls -la restAssured2
+          echo "ACADEMY_API_PATH=${{ vars.ACADEMY_API_PATH }}" >> .env
+          echo "API_APPLICATION_ID=${{ secrets.API_APPLICATION_ID }}" >> .env
+          echo "API_TOKEN=${{ secrets.API_TOKEN }}" >> .env
+        # Puedes añadir un 'cat .env' aquí para depurar si el archivo se crea correctamente
+        # run: |
+        #   echo "ACADEMY_API_PATH=${{ vars.ACADEMY_API_PATH }}" >> .env
+        #   echo "API_APPLICATION_ID=${{ secrets.API_APPLICATION_ID }}" >> .env
+        #   echo "API_TOKEN=${{ secrets.API_TOKEN }}" >> .env
+        #   cat .env # Para depuración
 
-      - name: Set up JDK 17
+      # Paso para cargar el archivo .env en el entorno del runner usando flat-pm/persisted-variables-action
+      - name: Load .env file variables
+        uses: flat-pm/persisted-variables-action@v2 # Usamos una acción diferente
+        with:
+          path: .env # Ruta al archivo .env
+
+      - name: Set up JDK 24
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '24'
           distribution: 'temurin'
+          cache: maven
 
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+      - name: Show environment variables (debug) from .env
+        run: |
+          # Ahora accedemos a las variables como variables de entorno estándar de Bash,
+          # ya que la acción las ha cargado.
+          echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
+          echo "API_APPLICATION_ID: ${API_APPLICATION_ID:0:4}********"
+          echo "API_TOKEN: ${API_TOKEN:0:4}********"
 
-      - name: Run tests with Maven
-        run: mvn clean test
-        working-directory: ./restAssured2  # 👈 Va al directorio correcto con pom.xml
+      - name: Build without tests
+        run: mvn -B package -DskipTests
+        working-directory: restAssured2
 
-      - name: Upload Surefire reports on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: surefire-reports
-          path: restAssured2/target/surefire-reports
+      - name: Run all tests or one specific class
+        run: |
+          if [ -z "${{ github.event.inputs.testClass }}" ]; then
+            echo "🔎 Ejecutando TODOS los tests"
+            mvn test \
+              -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
+              -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
+              -DAPI_TOKEN="$API_TOKEN"
+          else
+            CLASS_NAME="${{ github.event.inputs.testClass }}"
+            CLASS_NAME=${CLASS_NAME%.java}
+            echo "🔎 Ejecutando test específico: $CLASS_NAME"
+            mvn -Dtest=$CLASS_NAME test \
+              -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
+              -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
+              -DAPI_TOKEN="$API_TOKEN"
+          fi
+        working-directory: restAssured2
