@@ -59,4 +59,5 @@ jobs:
               -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
               -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
               -DAPI_TOKEN="$API_TOKEN"
+          fi
         working-directory: restAssured2
