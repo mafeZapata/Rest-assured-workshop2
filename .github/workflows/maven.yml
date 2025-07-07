@@ -8,19 +8,16 @@ on:
   workflow_dispatch:
     inputs:
       testClass:
-        description: 'Clase de test a ejecutar (ej: workshop.CommentsTest o dejar vacío para todos)'
+        description: 'Clase de test a ejecutar (ej: CommentsTest)'
         required: false
         default: ''
+
+env:
+  env_var: ${{ vars.ENV_CONTEXT_VAR }}
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    environment: test
-
-    env:
-      ACADEMY_API_PATH: ${{ vars.ACADEMY_API_PATH }}
-      API_APPLICATION_ID: ${{ secrets.API_APPLICATION_ID }}
-      API_TOKEN: ${{ secrets.API_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
@@ -32,11 +29,18 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Show environment variables (debug)
+      - name: Set environment variables
         run: |
-          echo "ACADEMY_API_PATH: $ACADEMY_API_PATH"
-          echo "API_APPLICATION_ID: ${API_APPLICATION_ID:0:4}********"
-          echo "API_TOKEN: ${API_TOKEN:0:4}********"
+          echo "ACADEMY_API_PATH=https://parseapi.back4app.com" >> $GITHUB_ENV
+          echo "API_APPLICATION_ID=33VkH3xL6TfxON93Sduy9mPmK1grwO2f98dT3Ami" >> $GITHUB_ENV
+          echo "API_TOKEN=BzTMNFv954AlAjdiOQzyJnP5aexiorut8cVqf5Ha" >> $GITHUB_ENV
+
+      - name: Mostrar variables de entorno establecidas
+        run: |
+          echo "API path: $ACADEMY_API_PATH"
+          echo "Application ID: $API_APPLICATION_ID"
+          echo "Token: $API_TOKEN"
+          echo "Variable desde contexto vars (env_var): $env_var"
 
       - name: Build without tests
         run: mvn -B package -DskipTests
@@ -45,18 +49,11 @@ jobs:
       - name: Run all tests or one specific class
         run: |
           if [ -z "${{ github.event.inputs.testClass }}" ]; then
-            echo "🔎 Ejecutando TODOS los tests"
-            mvn test \
-              -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
-              -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
-              -DAPI_TOKEN="$API_TOKEN"
+            echo "🔎 Ejecutando TODOS los tests del paquete workshop/"
+            mvn test
           else
-            CLASS_NAME="${{ github.event.inputs.testClass }}"
-            CLASS_NAME=${CLASS_NAME%.java}
+            CLASS_NAME=$(basename "${{ github.event.inputs.testClass }}")
             echo "🔎 Ejecutando test específico: $CLASS_NAME"
-            mvn -Dtest=$CLASS_NAME test \
-              -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
-              -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
-              -DAPI_TOKEN="$API_TOKEN"
+            mvn -Dtest=$CLASS_NAME test
           fi
         working-directory: restAssured2
