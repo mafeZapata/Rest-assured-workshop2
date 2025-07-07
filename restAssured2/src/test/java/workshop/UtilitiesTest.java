@@ -26,7 +26,7 @@ public class  UtilitiesTest  {
         RestAssured.baseURI = Uri;
     }
 
-    @BeforeTest
+@BeforeSuite
     public void SetEnvironmentAndAuthenticate() {
 
         setEnvironmentParameters();
