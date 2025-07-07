@@ -140,9 +140,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.0.0-M9</version>
                     <configuration>
-                        <includes>
-                            <include>**/*Test.java</include>
-                        </includes>
                         <argLine>
                             -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
                         </argLine>
