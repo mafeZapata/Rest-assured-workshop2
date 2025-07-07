@@ -44,7 +44,7 @@ jobs:
 
       - name: Run all tests or one specific class
         run: |
-          if [ -z "${{ github.event.inputs.testClass }}" ]; then
+          if [ -z "${{ github.event.inputs.workshop.CommentsTest }}" ]; then
             echo "🔎 Ejecutando TODOS los tests"
             mvn test \
               -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
