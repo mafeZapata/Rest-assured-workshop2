@@ -44,18 +44,15 @@ jobs:
 
       - name: Run all tests or one specific class
         run: |
-          if [ -z "${{ github.event.inputs.workshop.CommentsTest }}" ]; then
+          if [ -z "${{ github.event.inputs.testClass }}" ]; then # <-- CORRECCIÓN AQUÍ
             echo "🔎 Ejecutando TODOS los tests"
             mvn test \
               -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
               -DAPI_APPLICATION_ID="$API_APPLICATION_ID" \
               -DAPI_TOKEN="$API_TOKEN"
           else
-            # La variable testClass debería contener el nombre completo de la clase, ej: workshop.CommentsTest
-            # Si el usuario ingresa con .java, lo eliminamos (aunque idealmente el input debería ser sin .java)
             CLASS_NAME="${{ github.event.inputs.testClass }}"
             CLASS_NAME=${CLASS_NAME%.java} # Elimina la extensión .java si está presente
-
             echo "🔎 Ejecutando test específico: $CLASS_NAME"
             mvn -Dtest=$CLASS_NAME test \
               -DACADEMY_API_PATH="$ACADEMY_API_PATH" \
