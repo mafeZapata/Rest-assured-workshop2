@@ -17,7 +17,7 @@ env:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Respeta tu YAML original
 
     steps:
       - uses: actions/checkout@v3
@@ -35,12 +35,23 @@ jobs:
           echo "API_APPLICATION_ID=33VkH3xL6TfxON93Sduy9mPmK1grwO2f98dT3Ami" >> $GITHUB_ENV
           echo "API_TOKEN=BzTMNFv954AlAjdiOQzyJnP5aexiorut8cVqf5Ha" >> $GITHUB_ENV
 
-      - name: Mostrar variables de entorno establecidas
+      - name: Mostrar variables de configuración
+        if: ${{ vars.USE_VARIABLES == 'true' }}
         run: |
-          echo "API path: $ACADEMY_API_PATH"
-          echo "Application ID: $API_APPLICATION_ID"
-          echo "Token: $API_TOKEN"
-          echo "Variable desde contexto vars (env_var): $env_var"
+          echo "repository variable : $REPOSITORY_VAR"
+          echo "organization variable : $ORGANIZATION_VAR"
+          echo "overridden variable : $OVERRIDE_VAR"
+          echo "variable from shell environment : $env_var"
+        env:
+          REPOSITORY_VAR: ${{ vars.REPOSITORY_VAR }}
+          ORGANIZATION_VAR: ${{ vars.ORGANIZATION_VAR }}
+          OVERRIDE_VAR: ${{ vars.OVERRIDE_VAR }}
+
+      - name: ${{ vars.HELLO_WORLD_STEP }}
+        if: ${{ vars.HELLO_WORLD_ENABLED == 'true' }}
+        uses: actions/hello-world-javascript-action@main
+        with:
+          who-to-greet: ${{ vars.GREET_NAME }}
 
       - name: Build without tests
         run: mvn -B package -DskipTests
