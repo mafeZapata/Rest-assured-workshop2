@@ -20,6 +20,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Show current directory structure
+        run: pwd && ls -la
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -34,13 +37,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build and run tests
+      - name: Run tests with Maven
         run: mvn clean test
-        working-directory: ./  # ¡Este es el cambio clave!
 
       - name: Upload Surefire reports on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: surefire-reports
-          path: ./target/surefire-reports
+          path: target/surefire-reports
